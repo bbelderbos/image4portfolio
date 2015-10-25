@@ -1,0 +1,4 @@
+*swp
+server/php/files/*
+test.py
+*pyc
