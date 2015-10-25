@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Portfolio image preparation</title>
+<link rel="stylesheet" href="css/reset.css" type="text/css">
+<link rel="stylesheet" href="css/base.css" type="text/css">
+</head>
+<body>
+<h1>Portfolio image preparation</h1>
+<a href="files.php" target='_blank'>Converted images</a>
+<form>
+  <label>Thumbnail width</label>  
+  <input id="thumbWidth" value="150"> 
+  <label>Full size width</label>  
+  <input id="fullWidth" value="800"> 
+  <br>
+  <label>Watermark text</label>  
+  <input id="watermarkText" value="(C) bobbelderbos.com">
+  <br>
+  <input id="fileupload" type="file" name="files[]" data-url="server/php/" multiple>
+  <div id="progress"><div class="bar" style="width: 0%;"></div></div>
+</form>
+<div id="btnWrapper"></div>
+<div id="output"></div>
+<hr>
+<p>Takes one or more images, creates thumb and zoom version of widths specified below (height scales proportionally). A watermark is added to the bigger zoom version (from text in the 3rd field below. <br>This app uses <a href='https://github.com/blueimp/jQuery-File-Upload/blob/master/cors/postmessage.html'>jQuery-File-Upload</a> and Python <a href='http://www.pythonware.com/products/pil/'>PIL</a></p>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="js/vendor/jquery.ui.widget.js"></script>
+<script src="js/jquery.iframe-transport.js"></script>
+<script src="js/jquery.fileupload.js"></script>
+<script>
+$(function () {
+    var thumbWidth = null;
+    var fullWidth = null;
+    var watermarkText = null;
+
+    $('#fileupload').fileupload({
+        dataType: 'json',
+        done: function (e, data) {
+          $('#output').html("");
+          thumbWidth = $('#thumbWidth').val();
+          fullWidth = $('#fullWidth').val();
+          watermarkText = $('#watermarkText').val();
+          $.ajax({
+              method: "POST",
+              url: 'edit_images.php',
+              data: { thumbWidth: thumbWidth, fullWidth: fullWidth, watermarkText: watermarkText, } ,
+              success: function(data) {
+                  $('#output').html(data);
+              }
+          });
+        },
+        progressall: function (e, data) {
+          var progress = parseInt(data.loaded / data.total * 100, 10);
+          $('#progress .bar').css(
+              'width',
+              progress + '%'
+          );
+        }
+    });
+});
+</script>
+</body> 
+</html>

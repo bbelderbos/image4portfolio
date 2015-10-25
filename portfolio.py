@@ -51,7 +51,6 @@ class Portfolio:
     height = int((float(img.size[1]) * float(widthPercent)))
     img = img.resize((width, height), Image.BILINEAR)
     resultImg = os.path.join(self.directory, self.doneStrDimensions.replace("XXX", str(width)).replace("YYY", str(height)) + image)
-    print resultImg
     img.save(resultImg)
     return resultImg
 
@@ -77,8 +76,9 @@ class Portfolio:
     Image.composite(watermark, img, watermark).save(image, 'JPEG') # if new file, change image var
 
   def _get_resized_images(self):
+    """ returns list of images in directory ordered desc by modification time """
     imgs = []
-    for im in glob.glob(os.path.join(self.directory, "%s*"%self.doneStr)):
+    for im in reversed(sorted(glob.glob(os.path.join(self.directory, "%s*"%self.doneStr)), key=os.path.getmtime)):
       imgs.append(im)
     return imgs
 
@@ -87,7 +87,7 @@ class Portfolio:
     imgs = self._get_resized_images()
     for i in imgs:
       if html: 
-        out.append("<li>%s</li>" % i)
+        out.append("<li><a target='_blank' href='%s'>%s</a></li>" % (i,i))
       else:
         out.append(i)
     if html: out.append("</ul>")
@@ -95,10 +95,15 @@ class Portfolio:
 
 
 if __name__ == "__main__":
+  if len(sys.argv) < 4:
+    sys.exit("%s thumbWidth fullWidth watermarkText" % sys.argv[0])
   p = Portfolio()
-  watermark = "(C) bob belderbos"
+  thumbWidth = sys.argv[1]
+  fullWidth = sys.argv[2]
+  watermarkText = sys.argv[3]
   for im in p.imageQueue:
-    p.resize_image(im, 150)
-    resImg = p.resize_image(im, 800)
-    p.watermark_image(resImg, watermark)
-  p.list_images(html=True)
+    thumbImg = p.resize_image(im, thumbWidth)
+    zoomImg = p.resize_image(im, fullWidth)
+    p.watermark_image(zoomImg, watermarkText)
+    print thumbImg
+    print zoomImg
