@@ -14,8 +14,8 @@ from PIL import Image, ImageDraw, ImageFont, ImageEnhance
  
 class Portfolio:
 
-  def __init__(self):
-    self.directory = "server/php/files"
+  def __init__(self, directory="server/php/files"):
+    self.directory = directory
     self.delimit = "__"
     self.doneStr = "resized"
     self.doneStrDimensions = self.delimit.join([self.doneStr, "XXX", "YYY"]) + self.delimit
@@ -37,7 +37,7 @@ class Portfolio:
     return images
 
   def resize_image(self, image, width):
-    """ http://pythoncentral.io/resize-image-python-batch/ """
+    """ modified source from http://pythoncentral.io/resize-image-python-batch/ """
     try:
       width = int(width)
     except:
@@ -56,8 +56,7 @@ class Portfolio:
     return resultImg
 
   def watermark_image(self, image, text, angle=23, opacity=0.25):
-    """ http://pythoncentral.io/watermark-images-python-2x/ """
-    #outFile = image.replace(self.doneStr, self.doneStr+".WM")
+    """ modified source from http://pythoncentral.io/watermark-images-python-2x/ """
     img = Image.open(image).convert('RGB')
     watermark = Image.new('RGBA', img.size, (0,0,0,0))
     size = 2
@@ -75,7 +74,25 @@ class Portfolio:
     alpha = watermark.split()[3]
     alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
     watermark.putalpha(alpha)
-    Image.composite(watermark, img, watermark).save(image, 'JPEG')
+    Image.composite(watermark, img, watermark).save(image, 'JPEG') # if new file, change image var
+
+  def _get_resized_images(self):
+    imgs = []
+    for im in glob.glob(os.path.join(self.directory, "%s*"%self.doneStr)):
+      imgs.append(im)
+    return imgs
+
+  def list_images(self, html=False):
+    out = ["<ul>"] if html else []
+    imgs = self._get_resized_images()
+    for i in imgs:
+      if html: 
+        out.append("<li>%s</li>" % i)
+      else:
+        out.append(i)
+    if html: out.append("</ul>")
+    print "\n".join(out)
+
 
 if __name__ == "__main__":
   p = Portfolio()
@@ -84,4 +101,4 @@ if __name__ == "__main__":
     p.resize_image(im, 150)
     resImg = p.resize_image(im, 800)
     p.watermark_image(resImg, watermark)
-
+  p.list_images(html=True)
