@@ -12,7 +12,7 @@ if(!is_numeric($thumbWidth) || !is_numeric($fullWidth)){
 exec("./portfolio.py $thumbWidth $fullWidth '$watermarkText'", $output);
 foreach($output as $o){
   if(strpos($o, "ERROR") !== false){
-    echo "$o<br>\n" 
+    echo "$o<br>\n";
   } else {
     $fullPath = $o;
     $fname = basename($o);
