@@ -29,6 +29,8 @@ class Portfolio:
     images = []
     for im in glob.glob(os.path.join(self.directory, "*")):
       fname = os.path.basename(im)
+      if fname == "index.html":
+        continue
       if fname.startswith(self.doneStr):
         continue
       if len(glob.glob(os.path.join(self.directory, "*"+self.getBaseFname.sub(r'\1', fname)))) > 1:
@@ -45,7 +47,10 @@ class Portfolio:
     imagePath = os.path.join(self.directory, image)
     if not os.path.isfile(imagePath):
       raise IOError("Image path not found: %s" % imagePath)
-    img = Image.open(imagePath)
+    try:
+      img = Image.open(imagePath)
+    except: 
+      raise IOError("Not an image file, or cannot process it")
     # Calculate the height using the same aspect ratio
     widthPercent = (width / float(img.size[0]))
     height = int((float(img.size[1]) * float(widthPercent)))
@@ -102,8 +107,11 @@ if __name__ == "__main__":
   fullWidth = sys.argv[2]
   watermarkText = sys.argv[3]
   for im in p.imageQueue:
-    thumbImg = p.resize_image(im, thumbWidth)
-    zoomImg = p.resize_image(im, fullWidth)
-    p.watermark_image(zoomImg, watermarkText)
+    try:
+      thumbImg = p.resize_image(im, thumbWidth)
+      zoomImg = p.resize_image(im, fullWidth)
+      p.watermark_image(zoomImg, watermarkText)
+    except:
+      sys.exit("ERROR: there was an issue processing image %s" % im)
     print thumbImg
     print zoomImg

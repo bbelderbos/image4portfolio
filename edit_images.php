@@ -11,8 +11,12 @@ if(!is_numeric($thumbWidth) || !is_numeric($fullWidth)){
 }
 exec("./portfolio.py $thumbWidth $fullWidth '$watermarkText'", $output);
 foreach($output as $o){
-  $fullPath = $o;
-  $fname = basename($o);
-  echo "<li><a href='download.php?file=$fullPath'>$fname</a></li>";
+  if(strpos($o, "ERROR") !== false){
+    echo "$o<br>\n" 
+  } else {
+    $fullPath = $o;
+    $fname = basename($o);
+    echo "<li><a href='download.php?file=$fullPath'>$fname</a></li>\n";
+  }
 }
 ?>
