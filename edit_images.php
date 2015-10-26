@@ -9,7 +9,7 @@ if(!is_numeric($thumbWidth) || !is_numeric($fullWidth)){
   echo "<span class='err'>Watermark text needs to be of format '(C) textual string'</span>";
   exit;
 }
-exec("./portfolio.py $thumbWidth $fullWidth '$watermarkText'", $output);
+exec("./portfolio.py $thumbWidth $fullWidth '$watermarkText' 2>&1", $output);
 foreach($output as $o){
   if(strpos($o, "ERROR") !== false){
     echo "$o<br>\n";
